@@ -7,3 +7,4 @@ nav button { margin-right: .5rem; }
 #listaNotas { display: grid; gap: .75rem; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
 .nota { border: 1px solid #ddd; border-radius: 8px; padding: .75rem; }
 .nota header { display: flex; justify-content: space-between; align-items: center; }
+.notaCompletada{ background-color: aquamarine; }
