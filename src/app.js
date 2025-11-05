@@ -59,12 +59,14 @@ function render() {
   for (const n of visibles) {
     const card = document.createElement("article");
     card.className = "nota";
+    const headerClass = n.completada ? "notaCompletada" : "";
+    const footerClass = n.completada ? "notaCompletada" : "";
     card.innerHTML = `
-      <header>
+      <header class="${headerClass}">
         <strong>[P${n.prioridad}] ${escapeHtml(n.texto)}</strong>
         <time datetime="${n.fecha}">${formatearFecha(n.fecha)}</time>
       </header>
-      <footer>
+      <footer class="${footerClass}">
         <button data-acc="completar" data-id="${n.id}">Completar</button>
         <button data-acc="borrar" data-id="${n.id}">Borrar</button>
       </footer>
@@ -100,7 +102,7 @@ function onAccionNota(e) {
   const idx = estado.notas.findIndex(n => n.id === id);
   if (idx < 0) return;
   if (acc === "borrar" && confirm("¿Borrar la nota?")) estado.notas.splice(idx, 1);
-  if (acc === "completar") estado.notas[idx].completada = true;
+  if (acc === "completar") estado.notas[idx].completada = !estado.notas[idx].completada;
   render();
 }
 
