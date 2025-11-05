@@ -1,21 +1,12 @@
-# NotasApp — DWEC U3 (Plantilla mínima)
+# Selección de persistencia (Web Storage / Cookies)
+Se selecciona el Web Storage como método para persistir los datos por diferentes motivos:
+    - Tiene más almacenaje (10MB máximo frente a 4KB de las Cookies)
+    - El Web Storage no genera tráfico en el HTTP, funciona solamente en el JavaScript
+    - Al no viajar por la red, es más seguro que las Cookies
 
-**Objetivo**: implementar los RF acordados (objetos nativos; `navigator.language`; filtros por `location.hash`; generación de HTML; viewport/scroll/pantalla completa cuando proceda; `window.open`+comunicación controlada; persistencia elegida y justificada; depuración/documentación).
+# Creación de la clase notaCompletada
+Se ha creado la clase notaCompletada para añadir, en caso de que sea necesario, la clase al footer y header de la nota.
 
-## Instrucciones rápidas
-1. Abrir `src/index.html` en un navegador moderno.
-2. Completar la lógica según los RF (ver enunciado de la UD).
-3. Añadir evidencias de depuración (capturas) en este README o en la carpeta que decidas.
-
-## Justificación de persistencia (rellenar)
-- Mecanismo elegido: Cookies ☐  /  Web Storage ☐
-- Motivo: caducidad, tamaño, seguridad, envío a servidor, etc.
-
-## Matriz RA–CE (referenciar funciones/flujo)
-- Objetos nativos → …
-- Interacción navegador (`navigator`, `location.hash`) → …
-- Ventanas y comunicación → …
-- Persistencia → …
-- Depuración y documentación → …
-
-© 2025-10-27 — DWEC
+# Modificación app.js
+Se ha añadido la función render, creando dos constantes donde se van a almacenar si la nota está completada o no, gracias a la funcionalidad de 'n.completada ? "notaCompletada" : ""'
+Se ha modificado en la función render las etiquetas de header y footer para aplicarle la clase correspondie

@@ -7,6 +7,14 @@ const estado = {
   filtro: obtenerFiltroDesdeHash()
 };
 
+
+const NOTAS_GUARDADAS = sessionStorage.getItem("notas")
+if (NOTAS_GUARDADAS) {
+  try {
+    estado.notas = JSON.parse(NOTAS_GUARDADAS);
+  } catch {}
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll("nav [data-hash]").forEach(btn => {
     btn.addEventListener("click", () => { location.hash = btn.getAttribute("data-hash"); });
@@ -81,6 +89,10 @@ function formatearFecha(ymd) {
   return new Intl.DateTimeFormat(navigator.language || "es-ES", { dateStyle: "medium" }).format(d);
 }
 
+function guardarNota() {
+  sessionStorage.setItem("notas", JSON.stringify(estado.notas));
+}
+
 function onSubmitNota(e) {
   e.preventDefault();
   const texto = document.getElementById("txtTexto").value;
@@ -89,6 +101,7 @@ function onSubmitNota(e) {
   try {
     const nota = crearNota(texto, fecha, prioridad);
     estado.notas.push(nota);
+    guardarNota();
     e.target.reset();
     alert("Nota creada");
     render();
@@ -102,6 +115,8 @@ function onAccionNota(e) {
   const idx = estado.notas.findIndex(n => n.id === id);
   if (idx < 0) return;
   if (acc === "borrar" && confirm("¿Borrar la nota?")) estado.notas.splice(idx, 1);
+  if (acc === "completar") estado.notas[idx].completada = true;
+  guardarNota();
   if (acc === "completar") estado.notas[idx].completada = !estado.notas[idx].completada;
   render();
 }
@@ -118,6 +133,7 @@ window.addEventListener("message", (ev) => {
   if (ev.data.tipo === "BORRADO") {
     const id = ev.data.id;
     estado.notas = estado.notas.filter(n => n.id !== id);
+    guardarNota();
     render();
   }
 });
@@ -125,3 +141,6 @@ window.addEventListener("message", (ev) => {
 function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[c]));
 }
+
+sessionStorage.setItem("notas", JSON.stringify(estado.notas));
+
