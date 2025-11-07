@@ -128,10 +128,9 @@ function onAccionNota(e) {
   const idx = estado.notas.findIndex(n => n.id === id);
   if (idx < 0) return;
   if (acc === "borrar" && confirm("¿Borrar la nota?")) estado.notas.splice(idx, 1);
-  guardarNota();
   if (acc === "completar") estado.notas[idx].completada = !estado.notas[idx].completada;
   
-  console.log("1");
+  guardarNota();
   render();
 }
 
