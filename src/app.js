@@ -9,7 +9,6 @@ const estado = {
 
 
 const NOTAS_GUARDADAS = sessionStorage.getItem("notas");
-console.log(estado.notas);
 
 if (NOTAS_GUARDADAS) {
   try {
@@ -46,10 +45,6 @@ function obtenerFiltroDesdeHash() {
 
 function filtrarNotas(notas) {
   const hoy = new Date(); const ymd = hoy.toISOString().slice(0,10);
-  console.log(hoy);
-  console.log("--");
-  console.log(ymd);
-  console.log(estado.filtro);
   if (estado.filtro === "#hoy") return notas.filter(n => n.fecha === ymd);
   if (estado.filtro === "#semana") {
     const fin = new Date(hoy); fin.setDate(hoy.getDate() + 7);
@@ -70,16 +65,11 @@ function render() {
   const cont = document.getElementById("listaNotas");
   cont.innerHTML = "";
   const visibles = ordenarNotas(filtrarNotas(estado.notas));
-  console.log(visibles);
   for (const n of visibles) {
-    console.log(n);
     const card = document.createElement("article");
     card.className = "nota";
     const headerClass = n.completada ? "notaCompletada" : "";
     const footerClass = n.completada ? "notaCompletada" : "";
-    console.log("2");
-    console.log(headerClass);
-    console.log(footerClass);
     card.innerHTML = `
       <header class="${headerClass}">
         <strong>[P${n.prioridad}] ${escapeHtml(n.texto)}</strong>
@@ -101,8 +91,6 @@ function formatearFecha(ymd) {
 }
 
 function guardarNota() {
-  console.log("guardarNota");
-  console.log(estado.notas);
   sessionStorage.setItem("notas", JSON.stringify(estado.notas));
 }
 
