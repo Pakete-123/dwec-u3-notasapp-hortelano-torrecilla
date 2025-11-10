@@ -10,3 +10,6 @@ Se ha creado la clase notaCompletada para añadir, en caso de que sea necesario,
 # Modificación app.js
 Se ha añadido la función render, creando dos constantes donde se van a almacenar si la nota está completada o no, gracias a la funcionalidad de 'n.completada ? "notaCompletada" : ""'
 Se ha modificado en la función render las etiquetas de header y footer para aplicarle la clase correspondie
+
+# Enlace a Git 
+[Enlace a GitHub](https://github.com/Pakete-123/dwec-u3-notasapp-hortelano-torrecilla)

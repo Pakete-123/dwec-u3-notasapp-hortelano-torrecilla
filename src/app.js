@@ -13,7 +13,9 @@ const NOTAS_GUARDADAS = sessionStorage.getItem("notas");
 if (NOTAS_GUARDADAS) {
   try {
     estado.notas = JSON.parse(NOTAS_GUARDADAS);
-  } catch {}
+  } catch (err){
+    console.log(err);
+  }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
