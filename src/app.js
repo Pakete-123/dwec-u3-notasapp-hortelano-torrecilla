@@ -2,7 +2,7 @@
 
 /** @typedef {{ id:string, texto:string, fecha:string, prioridad:number, completada?:boolean }} Nota */
 
-const estado = {
+const ESTADO = {
   notas: /** @type {Nota[]} */ ([]),
   filtro: obtenerFiltroDesdeHash()
 };
@@ -11,7 +11,7 @@ const estado = {
 const NOTAS_GUARDADAS = sessionStorage.getItem("notas")
 if (NOTAS_GUARDADAS) {
   try {
-    estado.notas = JSON.parse(NOTAS_GUARDADAS);
+    ESTADO.notas = JSON.parse(NOTAS_GUARDADAS);
   } catch (err){
     console.log(err);
   }
@@ -27,29 +27,29 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 window.addEventListener("hashchange", () => {
-  estado.filtro = obtenerFiltroDesdeHash();
+  ESTADO.filtro = obtenerFiltroDesdeHash();
   render();
 });
 
 function crearNota(texto, fecha, prioridad) {
-  const t = String(texto).trim();
-  const p = Math.max(1, Math.min(3, Number(prioridad) || 1));
-  const f = new Date(fecha);
-  if (!t || Number.isNaN(f.getTime())) throw new Error("Datos de nota inválidos");
-  return { id: "n" + Math.random().toString(36).slice(2), texto: t, fecha: f.toISOString().slice(0,10), prioridad: p };
+  const T = String(texto).trim();
+  const P = Math.max(1, Math.min(3, Number(prioridad) || 1));
+  const F = new Date(fecha);
+  if (!T || Number.isNaN(F.getTime())) throw new Error("Datos de nota inválidos");
+  return { id: "n" + Math.random().toString(36).slice(2), texto: T, fecha: F.toISOString().slice(0,10), prioridad: P };
 }
 
 function obtenerFiltroDesdeHash() {
-  const h = (location.hash || "#todas").toLowerCase();
-  return ["#hoy","#semana","#todas"].includes(h) ? h : "#todas";
+  const H = (location.hash || "#todas").toLowerCase();
+  return ["#hoy","#semana","#todas"].includes(H) ? H : "#todas";
 }
 
 function filtrarNotas(notas) {
-  const hoy = new Date(); const ymd = hoy.toISOString().slice(0,10);
-  if (estado.filtro === "#hoy") return notas.filter(n => n.fecha === ymd);
-  if (estado.filtro === "#semana") {
-    const fin = new Date(hoy); fin.setDate(hoy.getDate() + 7);
-    return notas.filter(n => new Date(n.fecha) >= hoy && new Date(n.fecha) <= fin);
+  const HOY = new Date(); const YMD = HOY.toISOString().slice(0,10);
+  if (ESTADO.filtro === "#hoy") return notas.filter(n => n.fecha === YMD);
+  if (ESTADO.filtro === "#semana") {
+    const fin = new Date(HOY); fin.setDate(HOY.getDate() + 7);
+    return notas.filter(n => new Date(n.fecha) >= HOY && new Date(n.fecha) <= fin);
   }
   return notas;
 }
@@ -63,46 +63,46 @@ function ordenarNotas(notas) {
 }
 
 function render() {
-  const cont = document.getElementById("listaNotas");
-  cont.innerHTML = "";
-  const visibles = ordenarNotas(filtrarNotas(estado.notas));
-  for (const n of visibles) {
-    const card = document.createElement("article");
-    card.className = "nota";
-    const headerClass = n.completada ? "notaCompletada" : "";
-    const footerClass = n.completada ? "notaCompletada" : "";
-    card.innerHTML = `
-      <header class="${headerClass}">
-        <strong>[P${n.prioridad}] ${escapeHtml(n.texto)}</strong>
-        <time datetime="${n.fecha}">${formatearFecha(n.fecha)}</time>
+  const CONT = document.getElementById("listaNotas");
+  CONT.innerHTML = "";
+  const VISIBLES = ordenarNotas(filtrarNotas(ESTADO.notas));
+  for (const N of VISIBLES) {
+    const CARD = document.createElement("article");
+    CARD.className = "nota";
+    const HEADERCLASS = N.completada ? "notaCompletada" : "";
+    const FOOTERCLASS = N.completada ? "notaCompletada" : "";
+    CARD.innerHTML = `
+      <header class="${HEADERCLASS}">
+        <strong>[P${N.prioridad}] ${escapeHtml(N.texto)}</strong>
+        <time datetime="${N.fecha}">${formatearFecha(N.fecha)}</time>
       </header>
-      <footer class="${footerClass}">
-        <button data-acc="completar" data-id="${n.id}">Completar</button>
-        <button data-acc="borrar" data-id="${n.id}">Borrar</button>
+      <footer class="${FOOTERCLASS}">
+        <button data-acc="completar" data-id="${N.id}">Completar</button>
+        <button data-acc="borrar" data-id="${N.id}">Borrar</button>
       </footer>
     `;
-    cont.appendChild(card);
+    CONT.appendChild(CARD);
   }
-  cont.querySelectorAll("button[data-acc]").forEach(btn => btn.addEventListener("click", onAccionNota));
+  CONT.querySelectorAll("button[data-acc]").forEach(btn => btn.addEventListener("click", onAccionNota));
 }
 
 function formatearFecha(ymd) {
-  const d = new Date(ymd);
-  return new Intl.DateTimeFormat(navigator.language || "es-ES", { dateStyle: "medium" }).format(d);
+  const D = new Date(ymd);
+  return new Intl.DateTimeFormat(navigator.language || "es-ES", { dateStyle: "medium" }).format(D);
 }
 
 function guardarNota() {
-  sessionStorage.setItem("notas", JSON.stringify(estado.notas));
+  sessionStorage.setItem("notas", JSON.stringify(ESTADO.notas));
 }
 
 function onSubmitNota(e) {
   e.preventDefault();
-  const texto = document.getElementById("txtTexto").value;
-  const fecha = document.getElementById("txtFecha").value;
-  const prioridad = document.getElementById("selPrioridad").value;
+  const TEXTO = document.getElementById("txtTexto").value;
+  const FECHA = document.getElementById("txtFecha").value;
+  const PRIORIDAD = document.getElementById("selPrioridad").value;
   try {
-    const nota = crearNota(texto, fecha, prioridad);
-    estado.notas.push(nota);
+    const NOTA = crearNota(TEXTO, FECHA, PRIORIDAD);
+    ESTADO.notas.push(NOTA);
     guardarNota();
     e.target.reset();
     alert("Nota creada");
@@ -111,30 +111,30 @@ function onSubmitNota(e) {
 }
 
 function onAccionNota(e) {
-  const btn = e.currentTarget;
-  const id = btn.getAttribute("data-id");
-  const acc = btn.getAttribute("data-acc");
-  const idx = estado.notas.findIndex(n => n.id === id);
-  if (idx < 0) return;
-  if (acc === "borrar" && confirm("¿Borrar la nota?")) estado.notas.splice(idx, 1);
-  if (acc === "completar") estado.notas[idx].completada = !estado.notas[idx].completada;
+  const BTN = e.currentTarget;
+  const ID = BTN.getAttribute("data-id");
+  const ACC = BTN.getAttribute("data-acc");
+  const IDX = ESTADO.notas.findIndex(n => n.id === ID);
+  if (IDX < 0) return;
+  if (ACC === "borrar" && confirm("¿Borrar la nota?")) ESTADO.notas.splice(IDX, 1);
+  if (ACC === "completar") ESTADO.notas[IDX].completada = !ESTADO.notas[IDX].completada;
   
   guardarNota();
   render();
 }
 
 function abrirPanelDiario() {
-  const ref = window.open("panel.html", "PanelDiario", "width=420,height=560");
-  if (!ref) { alert("Pop-up bloqueado. Permita ventanas emergentes."); return; }
-  const snapshot = { tipo: "SNAPSHOT", notas: filtrarNotas(estado.notas) };
-  setTimeout(() => { try { ref.postMessage(snapshot, "*"); } catch {} }, 400);
+  const REF = window.open("panel.html", "PanelDiario", "width=420,height=560");
+  if (!REF) { alert("Pop-up bloqueado. Permita ventanas emergentes."); return; }
+  const SNAPSHOT = { tipo: "SNAPSHOT", notas: filtrarNotas(ESTADO.notas) };
+  setTimeout(() => { try { REF.postMessage(SNAPSHOT, "*"); } catch {} }, 400);
 }
 
 window.addEventListener("message", (ev) => {
   if (!ev.data || typeof ev.data !== "object") return;
   if (ev.data.tipo === "BORRADO") {
-    const id = ev.data.id;
-    estado.notas = estado.notas.filter(n => n.id !== id);
+    const ID = ev.data.id;
+    ESTADO.notas = ESTADO.notas.filter(n => n.id !== ID);
     guardarNota();
     render();
   }
@@ -144,5 +144,5 @@ function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[c]));
 }
 
-sessionStorage.setItem("notas", JSON.stringify(estado.notas));
+sessionStorage.setItem("notas", JSON.stringify(ESTADO.notas));
 
