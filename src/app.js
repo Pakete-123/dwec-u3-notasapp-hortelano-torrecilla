@@ -7,12 +7,12 @@ const ESTADO = {
     filtro: obtenerFiltroDesdeHash(),
 };
 
-const NOTAS_GUARDADAS = sessionStorage.getItem("notas");
-if (NOTAS_GUARDADAS) {
+const DATOS_GUARDADOS = localStorage.getItem("notasApp:data");
+if (DATOS_GUARDADOS) {
     try {
-        ESTADO.notas = JSON.parse(NOTAS_GUARDADAS);
+        ESTADO.notas = JSON.parse(DATOS_GUARDADOS);
     } catch (err) {
-        console.log(err);
+        console.log("Error al leer datos: ", err);
     }
 }
 
@@ -26,6 +26,14 @@ document.addEventListener("DOMContentLoaded", () => {
     document
         .getElementById("btnPanelDiario")
         .addEventListener("click", abrirPanelDiario);
+    document
+        .getElementById("listaNotas")
+        .addEventListener("click", onAccionNotaDelegado);
+    document
+        .getElementById("btnRestaurar")
+        .addEventListener("click", restaurarSnapshot);
+
+    actualizarSelectHistorial();
     render();
 });
 
@@ -88,6 +96,7 @@ function ordenarNotas(notas) {
 function render() {
     const CONT = document.getElementById("listaNotas");
     CONT.innerHTML = "";
+
     const VISIBLES = ordenarNotas(filtrarNotas(ESTADO.notas));
     for (const N of VISIBLES) {
         const CARD = document.createElement("article");
@@ -188,4 +197,4 @@ function escapeHtml(s) {
     );
 }
 
-sessionStorage.setItem("notas", JSON.stringify(ESTADO.notas));
+localStorage.setItem("notas", JSON.stringify(ESTADO.notas));

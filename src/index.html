@@ -38,10 +38,15 @@
       <div id="listaNotas" role="list" aria-live="polite">
         <template id="tplNota">
           <article class="nota" data-id="">
-            <h3 class="texto"></h3>
-            <time class="fecha"></time>
-            <button data-accion="editar">Editar</button>
-            <button data-accion="borrar">Borrar</button>
+            <header>
+              <strong class="texto"></strong>
+              <time class="fecha"></time>
+            </header>
+            <footer>
+              <button data-acc="completar">Completar</button>
+              <button data-acc="editar">Editar</button>
+              <button data-acc="borrar">Borrar</button>
+            </footer>
           </article>
         </template>
       </div>
@@ -52,6 +57,6 @@
     <button id="btnPanelDiario">Abrir Panel Diario</button>
   </footer>
 
-  <script src="app.js"></script>
+  <script src="app2.js"></script>
 </body>
 </html>
