@@ -38,20 +38,20 @@
 
       <section aria-labelledby="listTitle">
         <h2 id="listTitle">Notas</h2>
+        <template id="tplNota">
+          <article class="nota">
+            <header>
+              <strong class="texto"></strong>
+              <time class="fecha"></time>
+            </header>
+            <footer>
+              <button data-acc="completar">Completar</button>
+              <button data-acc="editar">Editar</button>
+              <button data-acc="borrar">Borrar</button>
+            </footer>
+          </article>
+        </template>
         <div id="listaNotas" role="list" aria-live="polite">
-          <template id="tplNota">
-            <article class="nota" data-id="">
-              <header>
-                <strong class="texto"></strong>
-                <time class="fecha"></time>
-              </header>
-              <footer>
-                <button data-acc="completar">Completar</button>
-                <button data-acc="editar">Editar</button>
-                <button data-acc="borrar">Borrar</button>
-              </footer>
-            </article>
-          </template>
         </div>
       </section>
     </main>

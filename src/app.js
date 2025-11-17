@@ -11,6 +11,10 @@ const DATOS_GUARDADOS = localStorage.getItem("notasApp:data");
 if (DATOS_GUARDADOS) {
   try {
     ESTADO.notas = JSON.parse(DATOS_GUARDADOS);
+
+    ESTADO.notas.forEach((n) => {
+      n.completada = n.completada === true;
+    });
   } catch (err) {
     console.log("Error al leer datos: ", err);
   }
@@ -24,9 +28,13 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   //Llamadas a las funciones mediante la recolección de la ID y llamándolas con EventListener
   document.getElementById("formNota").addEventListener("submit", onSubmitNota);
-  document.getElementById("btnPanelDiario").addEventListener("click", abrirPanelDiario);
-  document.getElementById("listaNotas").addEventListener("click", onAccionNotaDelegado);
-  document.getElementById("btnRestaurar").addEventListener("click", restaurarSnapshot);
+  document
+    .getElementById("btnPanelDiario")
+    .addEventListener("click", abrirPanelDiario);
+  document.getElementById("listaNotas").addEventListener("click", onAccionNota);
+  document
+    .getElementById("btnRestaurar")
+    .addEventListener("click", restaurarSnapshot);
 
   actualizarSelectHistorial();
   render();
@@ -60,15 +68,6 @@ function crearNota(texto, fecha, prioridad) {
   };
 }
 
-/* function crearNotaDOM(nota) {
-    const TPL = document.getElementById("tplNota");
-    const NODE = TPL.content.firstElementChild.cloneNode(true);
-    NODE.dataset.id = nota.id;
-    NODE.querySelector(".texto").textContent = nota.texto;
-    NODE.querySelector(".fecha").textContent = nota.fecha;
-    return NODE;
-} */
-
 function obtenerFiltroDesdeHash() {
   const H = (location.hash || "#todas").toLowerCase();
   return ["#hoy", "#semana", "#todas"].includes(H) ? H : "#todas";
@@ -97,33 +96,6 @@ function ordenarNotas(notas) {
   );
 }
 
-/* function render() {
-    const CONT = document.getElementById("listaNotas");
-    CONT.innerHTML = "";
-
-    const VISIBLES = ordenarNotas(filtrarNotas(ESTADO.notas));
-    for (const N of VISIBLES) {
-        const CARD = document.createElement("article");
-        CARD.className = "nota";
-        const HEADERCLASS = N.completada ? "notaCompletada" : "";
-        const FOOTERCLASS = N.completada ? "notaCompletada" : "";
-        CARD.innerHTML = `
-      <header class="${HEADERCLASS}">
-        <strong>[P${N.prioridad}] ${escapeHtml(N.texto)}</strong>
-        <time datetime="${N.fecha}">${formatearFecha(N.fecha)}</time>
-      </header>
-      <footer class="${FOOTERCLASS}">
-        <button data-acc="completar" data-id="${N.id}">Completar</button>
-        <button data-acc="borrar" data-id="${N.id}">Borrar</button>
-      </footer>
-    `;
-        CONT.appendChild(CARD);
-    }
-    CONT.querySelectorAll("button[data-acc]").forEach((btn) =>
-        btn.addEventListener("click", onAccionNota)
-    );
-} */
-
 function render() {
   const CONT = document.getElementById("listaNotas");
   CONT.innerHTML = "";
@@ -143,15 +115,12 @@ function render() {
     FECHA.textContent = formatearFecha(N.fecha);
     FECHA.dateTime = N.fecha;
 
-    if (N.completada) {
-      HEADER.classList.add("notaCompletada");
-      FOOTER.classList.add("notaCompletada");
-    } else if (!N.completada) {
-      HEADER.classList.add("");
-      FOOTER.classList.add("");
-    }
+    const COMPLETADA = N.completada === true;
 
-    NODE.querySelector("[data-acc= 'completar']").textContent = N.completada
+    HEADER.classList.toggle("notaCompletada", COMPLETADA);
+    FOOTER.classList.toggle("notaCompletada", COMPLETADA);
+
+    NODE.querySelector("[data-acc=completar]").textContent = N.completada
       ? "Desmarcar"
       : "Completar";
 
@@ -169,16 +138,16 @@ function formatearFecha(ymd) {
 }
 
 function guardarNota() {
-  sessionStorage.setItem("notasApp:data", JSON.stringify(ESTADO.notas));
-  guardarSnapshot();
+  localStorage.setItem("notasApp:data", JSON.stringify(ESTADO.notas));
 }
 
 function guardarSnapshot() {
   const CLAVE = "notasApp:historial";
+  const COPIANOTAS = JSON.parse(JSON.stringify(ESTADO.notas));
   const HISTORIAL = JSON.parse(localStorage.getItem(CLAVE)) || [];
   HISTORIAL.unshift({
     fecha: new Date().toISOString(),
-    notas: ESTADO.notas,
+    notas: COPIANOTAS,
   });
   localStorage.setItem(CLAVE, JSON.stringify(HISTORIAL.slice(0, 5)));
   actualizarSelectHistorial();
@@ -187,7 +156,8 @@ function guardarSnapshot() {
 function actualizarSelectHistorial() {
   const SELECCIONAR = document.getElementById("selectHistorial");
   if (!SELECCIONAR) return;
-  const HISTORIAL = JSON.parse(localStorage.getItem(CLAVE)) || [];
+  const HISTORIAL =
+    JSON.parse(localStorage.getItem("notasApp:historial")) || [];
   SELECCIONAR.innerHTML = "";
 
   HISTORIAL.forEach((snap, index) => {
@@ -223,6 +193,7 @@ function onSubmitNota(e) {
     const NOTA = crearNota(TEXTO, FECHA, PRIORIDAD);
     ESTADO.notas.push(NOTA);
     guardarNota();
+    guardarSnapshot();
     e.target.reset();
     alert("Nota creada");
     render();
@@ -243,11 +214,12 @@ function onAccionNota(e) {
   if (ACC === "borrar" && confirm("¿Segur@ que quiere borrar esta nota?")) {
     ESTADO.notas = ESTADO.notas.filter((n) => n.id !== ID);
     guardarNota();
+    guardarSnapshot();
     render();
   }
 
   if (ACC === "completar") {
-    nota.completada = !nota.completada;
+    NOTA.completada = !NOTA.completada;
     guardarNota();
     render();
   }
@@ -290,7 +262,9 @@ function editarNotaInline(nota) {
     INPUTFECHA.setCustomValidity("");
 
     if (!INPUTTEXTO.checkValidity()) {
-      INPUTTEXTO.setCustomValidity("El texto es obligatorio y debe tener un máximo de 200 carácteres");
+      INPUTTEXTO.setCustomValidity(
+        "El texto es obligatorio y debe tener un máximo de 200 carácteres"
+      );
       INPUTTEXTO.reportValidity();
       return;
     }
@@ -303,13 +277,18 @@ function editarNotaInline(nota) {
 
     nota.texto = INPUTTEXTO.value.trim();
     nota.fecha = INPUTFECHA.value;
+
+    guardarSnapshot();
     guardarNota();
     render();
-});
-
-  FOOTER.querySelector("[data-acc='cancelar']").addEventListener("click", () => {
-    render();
   });
+
+  FOOTER.querySelector("[data-acc='cancelar']").addEventListener(
+    "click",
+    () => {
+      render();
+    }
+  );
 }
 
 function abrirPanelDiario() {
@@ -335,15 +314,3 @@ window.addEventListener("message", (ev) => {
     render();
   }
 });
-
-/* function escapeHtml(s) {
-  return String(s).replace(
-    /[&<>"']/g,
-    (c) =>
-      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[
-        c
-      ])
-  );
-} */
-
-/* localStorage.setItem("notas", JSON.stringify(ESTADO.notas)); */
