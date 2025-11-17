@@ -1,49 +1,65 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>NotasApp — DWEC U3</title>
-  <link rel="stylesheet" href="styles.css" />
-</head>
-<body>
-  <header>
-    <h1>NotasApp</h1>
-    <nav aria-label="Filtros">
-      <button data-hash="#hoy">Hoy</button>
-      <button data-hash="#semana">Semana</button>
-      <button data-hash="#todas">Todas</button>
-      <button value="idioma">Cambiar idioma</button>
-    </nav>
-  </header>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>NotasApp — DWEC U3</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>NotasApp</h1>
+      <nav aria-label="Filtros">
+        <button data-hash="#hoy">Hoy</button>
+        <button data-hash="#semana">Semana</button>
+        <button data-hash="#todas">Todas</button>
+      </nav>
+    </header>
 
-  <main>
-    <section aria-labelledby="formTitle">
-      <h2 id="formTitle">Nueva nota</h2>
-      <form id="formNota">
-        <label>Texto <input id="txtTexto" required maxlength="200" /></label>
-        <label>Fecha <input id="txtFecha" type="date" required /></label>
-        <label>Prioridad
-          <select id="selPrioridad">
-            <option value="1">Baja</option>
-            <option value="2">Media</option>
-            <option value="3">Alta</option>
-          </select>
-        </label>
-        <button type="submit">Añadir</button>
-      </form>
-    </section>
+    <main>
+      <section aria-labelledby="formTitle">
+        <h2 id="formTitle">Nueva nota</h2>
+        <form id="formNota">
+          <label>Texto <input id="txtTexto" required maxlength="200" /></label>
+          <label>Fecha <input id="txtFecha" type="date" required /></label>
+          <label
+            >Prioridad
+            <select id="selPrioridad">
+              <option value="1">Baja</option>
+              <option value="2">Media</option>
+              <option value="3">Alta</option>
+            </select>
+          </label>
+          <button type="submit">Añadir</button>
+        </form>
+        <select id="selectHistorial"></select>
+        <button id="btnRestaurar">Restaurar versión</button>
+      </section>
 
-    <section aria-labelledby="listTitle">
-      <h2 id="listTitle">Notas</h2>
-      <div id="listaNotas" role="list" aria-live="polite"></div>
-    </section>
-  </main>
+      <section aria-labelledby="listTitle">
+        <h2 id="listTitle">Notas</h2>
+        <template id="tplNota">
+          <article class="nota">
+            <header>
+              <strong class="texto"></strong>
+              <time class="fecha"></time>
+            </header>
+            <footer>
+              <button data-acc="completar">Completar</button>
+              <button data-acc="editar">Editar</button>
+              <button data-acc="borrar">Borrar</button>
+            </footer>
+          </article>
+        </template>
+        <div id="listaNotas" role="list" aria-live="polite">
+        </div>
+      </section>
+    </main>
 
-  <footer>
-    <button id="btnPanelDiario">Abrir Panel Diario</button>
-  </footer>
+    <footer>
+      <button id="btnPanelDiario">Abrir Panel Diario</button>
+    </footer>
 
-  <script src="app.js"></script>
-</body>
+    <script src="app.js"></script>
+  </body>
 </html>
