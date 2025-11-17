@@ -130,6 +130,34 @@ function render() {
   CONT.appendChild(FRAGMENTO);
 }
 
+function editarNota(nota) {
+
+  estado.editando = nota.id; //Almacena qué nota estamos editando.
+
+  const btnCrear = document.querySelector("#formarNota button[type=submit]");
+  btnCrear.textContent = "Guardar edición";
+
+  //Boton de cancelar
+
+  document.getElementById("btnCancelarEdicion").style.display = "inline-block";
+
+}
+
+function cancelarEdicion(){
+  estado.editando = null;
+
+  //Resetear el formulario
+
+  document.getElementById("formNota").reset();
+
+  const btnCrear = document.querySelector("#formarNota button[type=submit]");
+  btnCrear.textContent = "Crear nota";
+
+  document.getElementById("btnCancelarEdicion").style.display = "none";
+
+}
+
+
 function formatearFecha(ymd) {
   const D = new Date(ymd);
   return new Intl.DateTimeFormat(navigator.language || "es-ES", {
