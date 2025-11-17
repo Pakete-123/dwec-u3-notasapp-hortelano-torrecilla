@@ -4,9 +4,9 @@
 
 const estado = {
   notas: /** @type {Nota[]} */ ([]),
-  filtro: obtenerFiltroDesdeHash()
+  filtro: obtenerFiltroDesdeHash(),
+  editando: null
 };
-
 
 const NOTAS_GUARDADAS = sessionStorage.getItem("notas");
 
@@ -22,6 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   document.getElementById("formNota").addEventListener("submit", onSubmitNota);
   document.getElementById("btnPanelDiario").addEventListener("click", abrirPanelDiario);
+  document.getElementById("btnCancelarEdicion").addEventListener("click", cancelarEdicion);
   render();
 });
 
@@ -70,20 +71,64 @@ function render() {
     card.className = "nota";
     const headerClass = n.completada ? "notaCompletada" : "";
     const footerClass = n.completada ? "notaCompletada" : "";
-    card.innerHTML = `
+    if (navigator.language == "es-ES"){
+      card.innerHTML = `
       <header class="${headerClass}">
         <strong>[P${n.prioridad}] ${escapeHtml(n.texto)}</strong>
         <time datetime="${n.fecha}">${formatearFecha(n.fecha)}</time>
       </header>
       <footer class="${footerClass}">
         <button data-acc="completar" data-id="${n.id}">Completar</button>
+        <button data-acc="editar" data-id="${n.id}">Editar</button>
         <button data-acc="borrar" data-id="${n.id}">Borrar</button>
       </footer>
     `;
+    } else {
+      card.innerHTML = `
+      <header class="${headerClass}">
+        <strong>[P${n.prioridad}] ${escapeHtml(n.texto)}</strong>
+        <time datetime="${n.fecha}">${formatearFecha(n.fecha)}</time>
+      </header>
+      <footer class="${footerClass}">
+        <button data-acc="completar" data-id="${n.id}">Completar</button>
+        <button data-acc="editar" data-id="${n.id}">Editar</button>
+        <button data-acc="borrar" data-id="${n.id}">Borrar</button>
+      </footer>
+    `;
+    }
+    
     cont.appendChild(card);
   }
   cont.querySelectorAll("button[data-acc]").forEach(btn => btn.addEventListener("click", onAccionNota));
 }
+
+function editarNota(nota) {
+
+  estado.editando = nota.id; //Almacena qué nota estamos editando.
+
+  const btnCrear = document.querySelector("#formarNota button[type=submit]");
+  btnCrear.textContent = "Guardar edición";
+
+  //Boton de cancelar
+
+  document.getElementById("btnCancelarEdicion").style.display = "inline-block";
+
+}
+
+function cancelarEdicion(){
+  estado.editando = null;
+
+  //Resetear el formulario
+
+  document.getElementById("formNota").reset();
+
+  const btnCrear = document.querySelector("#formarNota button[type=submit]");
+  btnCrear.textContent = "Crear nota";
+
+  document.getElementById("btnCancelarEdicion").style.display = "none";
+
+}
+
 
 function formatearFecha(ymd) {
   const d = new Date(ymd);
@@ -109,6 +154,19 @@ function onSubmitNota(e) {
   } catch (err) { alert(err.message); }
 }
 
+if (estado.editando !== null){
+  const idx = estado.notas.findIndex(n => n.id === estado.editando);
+
+
+    guardarNota();
+    cancelarEdicion();
+    render();
+    alert("Nota actualizada");
+    return;
+}
+
+
+
 function onAccionNota(e) {
   const btn = e.currentTarget;
   const id = btn.getAttribute("data-id");
@@ -117,6 +175,10 @@ function onAccionNota(e) {
   if (idx < 0) return;
   if (acc === "borrar" && confirm("¿Borrar la nota?")) estado.notas.splice(idx, 1);
   if (acc === "completar") estado.notas[idx].completada = !estado.notas[idx].completada;
+  if (acc === "editar") {
+    editarNota(estado.notas[idx]);
+    return; 
+  }
   
   guardarNota();
   render();
