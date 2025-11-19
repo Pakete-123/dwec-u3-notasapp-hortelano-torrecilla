@@ -115,6 +115,14 @@ function render() {
     FECHA.textContent = formatearFecha(N.fecha);
     FECHA.dateTime = N.fecha;
 
+    const PRIORIDAD = document.createElement("span");
+    PRIORIDAD.className = "prioridad";
+    PRIORIDAD.textContent = `Prioridad: ${
+      N.prioridad === 1 ? "Baja" : N.prioridad === 2 ? "Media" : "Alta"
+    }`;
+    NODE.dataset.p = N.prioridad;
+    HEADER.appendChild(PRIORIDAD);
+
     const COMPLETADA = N.completada === true;
 
     HEADER.classList.toggle("notaCompletada", COMPLETADA);
@@ -123,27 +131,13 @@ function render() {
     NODE.querySelector("[data-acc=completar]").textContent = N.completada
       ? "Desmarcar"
       : "Completar";
-
     FRAGMENTO.appendChild(NODE);
   }
 
   CONT.appendChild(FRAGMENTO);
 }
 
-function editarNota(nota) {
-
-  estado.editando = nota.id; //Almacena qué nota estamos editando.
-
-  const btnCrear = document.querySelector("#formarNota button[type=submit]");
-  btnCrear.textContent = "Guardar edición";
-
-  //Boton de cancelar
-
-  document.getElementById("btnCancelarEdicion").style.display = "inline-block";
-
-}
-
-function cancelarEdicion(){
+function cancelarEdicion() {
   estado.editando = null;
 
   //Resetear el formulario
@@ -154,9 +148,7 @@ function cancelarEdicion(){
   btnCrear.textContent = "Crear nota";
 
   document.getElementById("btnCancelarEdicion").style.display = "none";
-
 }
-
 
 function formatearFecha(ymd) {
   const D = new Date(ymd);
@@ -257,63 +249,64 @@ function onAccionNota(e) {
   }
 }
 
+//
 function editarNotaInline(nota) {
   const CARD = document.querySelector(`[data-id="${nota.id}"]`);
   if (!CARD) return;
-
   const TEXTO = CARD.querySelector(".texto");
-  const FECHA = CARD.querySelector(".fecha");
   const FOOTER = CARD.querySelector("footer");
 
-  const INPUTTEXTO = document.createElement("input");
-  INPUTTEXTO.type = "text";
-  INPUTTEXTO.value = nota.texto;
-  INPUTTEXTO.required = true;
-  INPUTTEXTO.maxLength = 200;
+  const INPUT_TEXTO = document.createElement("input");
+  INPUT_TEXTO.type = "text";
+  INPUT_TEXTO.value = nota.texto;
+  INPUT_TEXTO.required = true;
+  INPUT_TEXTO.maxLength = 200;
 
-  const INPUTFECHA = document.createElement("input");
-  INPUTFECHA.type = "date";
-  INPUTFECHA.value = nota.fecha;
-  INPUTFECHA.required = true;
-  INPUTFECHA.min = new Date().toISOString().slice(0, 10);
+  const INPUT_FECHA = document.createElement("input");
+  INPUT_FECHA.type = "date";
+  INPUT_FECHA.value = nota.fecha;
+  INPUT_FECHA.required = true;
+  INPUT_FECHA.min = new Date().toISOString().slice(0, 10);
 
-  TEXTO.replaceWith(INPUTTEXTO);
-  FECHA.replaceWith(INPUTFECHA);
+  const INPUT_PRIORIDAD = document.createElement("select");
+  [1, 2, 3].forEach((p) => {
+    const opt = document.createElement("option");
+    opt.value = p;
+    opt.textContent = p === 1 ? "Baja" : p === 2 ? "Media" : "Alta";
+    if (p === nota.prioridad) opt.selected = true;
+    INPUT_PRIORIDAD.appendChild(opt);
+  });
 
-  FOOTER.innerHTML = `
-    <button data-acc="guardar">Guardar</button>
-    <button data-acc="cancelar">Cancelar</button>
-  `;
+  const CONTENEDOR = document.createElement("div");
+  CONTENEDOR.style.display = "flex";
+  CONTENEDOR.style.flexDirection = "column";
+  CONTENEDOR.style.gap = "6px";
 
+  CONTENEDOR.appendChild(INPUT_TEXTO);
+  CONTENEDOR.appendChild(INPUT_FECHA);
+  TEXTO.replaceWith(CONTENEDOR);
+  CARD.querySelector("header").appendChild(INPUT_PRIORIDAD);
+  FOOTER.innerHTML = `    <button data-acc="guardar">Guardar</button>    <button data-acc="cancelar">Cancelar</button>  `;
   FOOTER.querySelector("[data-acc='guardar']").addEventListener("click", () => {
-    INPUTTEXTO.setCustomValidity("");
-    INPUTFECHA.setCustomValidity("");
-
-    if (!INPUTTEXTO.checkValidity()) {
-      INPUTTEXTO.setCustomValidity(
-        "El texto es obligatorio y debe tener un máximo de 200 carácteres"
-      );
-      INPUTTEXTO.reportValidity();
+    if (!INPUT_TEXTO.checkValidity()) {
+      INPUT_TEXTO.reportValidity();
       return;
     }
 
-    if (new Date(INPUTFECHA.value) < new Date()) {
-      INPUTFECHA.setCustomValidity("La fecha no puede ser anterior a hoy");
-      INPUTFECHA.reportValidity();
+    if (new Date(INPUT_FECHA.value) < new Date()) {
+      INPUT_FECHA.setCustomValidity("La fecha no puede ser anterior a hoy");
+      INPUT_FECHA.reportValidity();
       return;
     }
 
-    nota.texto = INPUTTEXTO.value.trim();
-    nota.fecha = INPUTFECHA.value;
-
+    nota.texto = INPUT_TEXTO.value.trim();
+    nota.fecha = INPUT_FECHA.value;
+    nota.prioridad = Number(INPUT_PRIORIDAD.value);
     guardarSnapshot();
     guardarNota();
     render();
   });
-
-  FOOTER.querySelector("[data-acc='cancelar']").addEventListener(
-    "click",
-    () => {
+  FOOTER.querySelector("[data-acc='cancelar']").addEventListener("click", () => {
       render();
     }
   );
